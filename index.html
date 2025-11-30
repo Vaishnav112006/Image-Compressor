@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <form method="POST" enctype="multipart/form-data" class="uform">
+    <div class="row">
+      <label>Choose image: <input type="file" name="image" accept="image/*" required></label>
+      <label>Quality: <input id="qrange" type="range" name="quality" min="1" max="100" value="50"><span id="qval">50</span></label>
+      <label class="inline"><input type="checkbox" name="subsample"> Enable 4:2:0 chroma subsampling</label>
+      <button class="btn" type="submit">Compress</button>
+    </div>
+  </form>
+
+  {% if original %}
+  <section class="results">
+    <div class="panels">
+      <div class="panel">
+        <h3>Original</h3>
+        <a href="{{ url_for('uploaded_file', filename=original) }}" target="_blank">
+          <img src="{{ url_for('uploaded_file', filename=original) }}" alt="original">
+        </a>
+        <p>Bytes: {{ metrics.orig_size }}</p>
+      </div>
+      <div class="panel">
+        <h3>Reconstructed</h3>
+        <a href="{{ url_for('uploaded_file', filename=compressed) }}" target="_blank">
+          <img src="{{ url_for('uploaded_file', filename=compressed) }}" alt="reconstructed">
+        </a>
+        <p>Bytes: {{ metrics.reconstructed_image_size }}</p>
+      </div>
+      <div class="panel">
+        <h3>Encoded Binary (.bin)</h3>
+        <p><a href="{{ url_for('download_file', filename=binfile) }}" class="download">Download .bin</a></p>
+        <p>Bytes: {{ metrics.encoded_bin_size }}</p>
+      </div>
+    </div>
+
+    <div class="metrics small">
+      <p>Quality: {{ metrics.quality }}</p>
+      <p>PSNR: {{ metrics.psnr }}</p>
+      <p>SSIM: {{ metrics.ssim }}</p>
+      <p>Reduction (image file): {{ metrics.reduction_image_percent }}%</p>
+      <p>Reduction (encoded bin): {{ metrics.reduction_encoded_percent }}%</p>
+    </div>
+    <div class="log">
+      <h4>Processing Log</h4>
+      <pre>{{ metrics | tojson(indent=2) }}</pre>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
